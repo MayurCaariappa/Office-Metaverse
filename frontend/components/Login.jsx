@@ -7,6 +7,7 @@ export const Login = ({ onLoginSuccess }) => {
 
     const handleLogin = async () => {
         try {
+            debugger;
             const response = await axios.post("http://localhost:3000/admin/signin", {
                 username: username,
                 password: password
