@@ -2,103 +2,108 @@ import Phaser from 'phaser';
 import { useEffect, useRef } from 'react';
 
 const GameScene = () => {
-  const gameRef = useRef(null); // Reference to hold the Phaser game instance
+  const gameRef = useRef(null); // Reference for the Phaser game
 
   useEffect(() => {
-    // Basic Phaser config
+    // Phaser game configuration
     const config = {
-      type: Phaser.AUTO,  // Choose WebGL or Canvas automatically
-      width: 800,         // Width of the game area
-      height: 600,        // Height of the game area
+      type: Phaser.AUTO,
+      width: window.innerWidth,
+      height: window.innerHeight,
       physics: {
-        default: 'arcade',  // Use the arcade physics system
+        default: 'arcade',
         arcade: {
-          gravity: { y: 0 }, // No gravity in this 2D environment
+          gravity: { y: 0 },
+          debug: true,
         },
       },
       scene: {
-        preload: preload,   // Function to preload assets
-        create: create,     // Function to set up the game scene
-        update: update,     // Function to update game objects each frame
+        preload,
+        create,
+        update,
       },
+      parent: 'viewport', // Attach Phaser game to the viewport div
     };
 
-    // Initialize the Phaser Game instance
     gameRef.current = new Phaser.Game(config);
 
     return () => {
-      // Cleanup the game instance on unmount
-      if (gameRef.current) {
-        gameRef.current.destroy(true);
-      }
+      if (gameRef.current) gameRef.current.destroy(true);
     };
   }, []);
 
-  // Preload function to load assets
   function preload() {
-    // Example asset: Load an avatar sprite (replace with your image path)
-    this.load.spritesheet('avatar', '/assets/avatar-character.jpg', {
-      frameWidth: 32,  // Width of each frame in the sprite sheet
-      frameHeight: 48, // Height of each frame in the sprite sheet
-    });
-    // Example: Load a background image
     this.load.image('office', '/assets/office-space.png');
+    this.load.image('avatar', '/assets/avatar-character.jpg');
   }
 
-  // Create function to set up the scene
   function create() {
-    // Add background image
-    this.add.image(400, 300, 'office');
+    // Adding the office background - Create a container for the map and obstacles
+    this.officeMap = this.add.container(0, 0); 
 
-    // Add the player character (avatar) in the middle of the screen
-    this.player = this.physics.add.sprite(400, 300, 'avatar');
-    this.player.setCollideWorldBounds(true);  // Prevent the player from leaving the game area
+    const background = this.add.image(0, 0, 'office').setOrigin(0, 0);
+    background.setDisplaySize(2000, 2000); // Set the display size to match actual map size
+    this.officeMap.add(background); // Add background to the map container
 
-    // Create walking animation from avatar spritesheet
-    this.anims.create({
-      key: 'walk',  // Animation key
-      frames: this.anims.generateFrameNumbers('avatar', { start: 0, end: 3 }),  // Frame range for walking
-      frameRate: 10,  // Animation speed
-      repeat: -1,  // Repeat forever
-    });
+    // Adding the avatar character at the center of the viewport
+    this.avatar = this.physics.add.sprite(400, 300, 'avatar');
+    this.avatar.setCollideWorldBounds(true); // Prevent the avatar from moving out of bounds
+    this.avatar.setScale(0.2);
 
-    // Setup keyboard input
+    // Static group for obstacles within the map
+    this.obstacles = this.physics.add.staticGroup();
+
+    // Define the table block relative to the map's coordinates
+    const tableBlock = this.add.rectangle(235, 205, 105, 390).setOrigin(0, 0);
+    this.physics.add.existing(tableBlock, true); // Set as static collider
+    this.obstacles.add(tableBlock);
+    tableBlock.setVisible(false); // Make it invisible
+
+    // Define other obstacles as needed
+    const chairBlock = this.add.rectangle(500, 500, 50, 50).setOrigin(0, 0);
+    this.physics.add.existing(chairBlock, true); // Set as static collider
+    this.obstacles.add(chairBlock);
+    chairBlock.setVisible(false);
+
+    // Add obstacles to the office map container
+    this.officeMap.add([tableBlock, chairBlock]);
+
+    // Enable collision between avatar and obstacles
+    this.physics.add.collider(this.avatar, this.obstacles);
+
+    // Keyboard input
     this.cursors = this.input.keyboard.createCursorKeys();
   }
 
-  // Update function to handle movement
   function update() {
-    // Reset the player's velocity (no movement)
-    this.player.setVelocity(0);
+    let speed = 5;
 
-    // Move left
+    // Move the map based on arrow key input, simulating avatar movement
     if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-160);
-      this.player.anims.play('walk', true);  // Play walking animation
+      this.officeMap.x += speed;
     }
-    // Move right
-    else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(160);
-      this.player.anims.play('walk', true);
+    if (this.cursors.right.isDown) {
+      this.officeMap.x -= speed;
     }
-    // Move up
-    else if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-160);
-      this.player.anims.play('walk', true);
+    if (this.cursors.up.isDown) {
+      this.officeMap.y += speed;
     }
-    // Move down
-    else if (this.cursors.down.isDown) {
-      this.player.setVelocityY(160);
-      this.player.anims.play('walk', true);
-    } else {
-      // Stop animation when no key is pressed
-      this.player.anims.stop();
+    if (this.cursors.down.isDown) {
+      this.officeMap.y -= speed;
     }
   }
 
   return (
-    <div>
-      <div id="game-container" /> {/* Container for Phaser game */}
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <div
+        id="viewport"
+        style={{
+          width: '800px',
+          height: '550px',
+          overflow: 'hidden',
+          border: '2px solid black',
+        }}
+      />
     </div>
   );
 };
