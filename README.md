@@ -41,11 +41,11 @@ The project is a full-stack application built using the following technologies:
 
 1.  **Virtual Office Space**:
     -   Each user has their own virtual desk and avatar.
-    -   Avatars can move around using keyboard arrow keys.
-    -   Users can explore the office and visit other users’ desks.
+    -   Avatars can move around using keyboard arrow keys. (done)
+    -   Users can explore the office and visit other users’ desks. (done)
 
 2.  **User Authentication**:
-    -   Secure login and registration using JWT.
+    -   Secure login and registration using JWT. (done)
     -   Users can create profiles and choose avatars.
 
 3.  **Real-time Avatar Status**:
