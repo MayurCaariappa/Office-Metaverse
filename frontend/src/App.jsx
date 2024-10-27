@@ -5,15 +5,21 @@ import { Login } from '../components/Login.jsx';
 
 function App() {
   const [login, setLogin] = useState(false);
+  const [username, setUsername] = useState("");
 
   // Function to handle successful login
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (user) => {
     setLogin(true);
+    setUsername(user);
   };
 
   return (
     <div className="App">
-      {!login ? (<Login onLoginSuccess={handleLoginSuccess} />) : (<GameScene />)}
+      {!login ? (
+        <Login onLoginSuccess={handleLoginSuccess} />
+      ) : (
+        <GameScene username={username} />
+      )}
     </div>
   )
 }

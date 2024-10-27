@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import GameScene from './GameScene';
 
 export const Login = ({ onLoginSuccess }) => {
     const [username, setUsername] = useState("");
@@ -13,7 +14,7 @@ export const Login = ({ onLoginSuccess }) => {
                 password: password
             });
             alert("Signed in successfully");
-            onLoginSuccess();
+            onLoginSuccess(username);
         } catch (error) {
             if (error.response && error.response.data && error.response.data.msg) {
                 alert(error.response.data.msg);

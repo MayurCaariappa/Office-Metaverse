@@ -1,11 +1,10 @@
 import Phaser from 'phaser';
 import { useEffect, useRef } from 'react';
 
-const GameScene = () => {
+const GameScene = ({ username }) => {
   const gameRef = useRef(null); // Reference for the Phaser game
 
   useEffect(() => {
-    // Phaser game configuration
     const config = {
       type: Phaser.AUTO,
       width: window.innerWidth,
@@ -25,73 +24,94 @@ const GameScene = () => {
       parent: 'viewport', // Attach Phaser game to the viewport div
     };
 
+    // Create the Phaser game instance
     gameRef.current = new Phaser.Game(config);
 
+    // Clean up on component unmount
     return () => {
-      if (gameRef.current) gameRef.current.destroy(true);
+      gameRef.current.destroy(true);
+      gameRef.current = null; // Avoid memory leaks
     };
   }, []);
 
-  function preload() {
+  const preload = function () {
     this.load.image('office', '/assets/office-space.png');
-    this.load.image('avatar', '/assets/avatar-character.jpg');
-  }
+    this.load.image('avatar1', '/assets/avatar-player1.png');
+    this.load.image('avatar2', '/assets/avatar-player2.png');
+  };
 
-  function create() {
-    // Adding the office background - Create a container for the map and obstacles
-    this.officeMap = this.add.container(0, 0); 
+  const create = function () {
+    // Adding the office background
+    this.officeMap = this.add.image(0, 0, 'office').setOrigin(0, 0);
+    this.officeMap.setDisplaySize(535, 365);
 
-    const background = this.add.image(0, 0, 'office').setOrigin(0, 0);
-    background.setDisplaySize(2000, 2000); // Set the display size to match actual map size
-    this.officeMap.add(background); // Add background to the map container
+    // Set world bounds for the physics
+    const { displayWidth: mapWidth, displayHeight: mapHeight } = this.officeMap;
+    this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
 
-    // Adding the avatar character at the center of the viewport
-    this.avatar = this.physics.add.sprite(400, 300, 'avatar');
-    this.avatar.setCollideWorldBounds(true); // Prevent the avatar from moving out of bounds
-    this.avatar.setScale(0.2);
+    // Initialize avatar
+    this.avatar = this.physics.add.sprite(80, 38, 'avatar2')
+      .setCollideWorldBounds(true)
+      .setScale(0.05);
 
-    // Static group for obstacles within the map
+    // Configure camera
+    this.cameras.main
+      .startFollow(this.avatar)
+      .setBounds(0, 0, mapWidth, mapHeight)
+      .setZoom(1.5);
+
+    // Create obstacles
     this.obstacles = this.physics.add.staticGroup();
 
-    // Define the table block relative to the map's coordinates
-    const tableBlock = this.add.rectangle(235, 205, 105, 390).setOrigin(0, 0);
-    this.physics.add.existing(tableBlock, true); // Set as static collider
-    this.obstacles.add(tableBlock);
-    tableBlock.setVisible(false); // Make it invisible
+    // Define and add obstacles
+    const obstaclesData = [
+      { x: 50, y: 33, width: 28, height: 60 }, // lobbyTable1
+      { x: 50, y: 118, width: 28, height: 60 }, // lobbyTable2 
+      { x: 115, y: 0, width: 12, height: 182 }, // lobbyWall 
+      { x: 0, y: 223, width: 127, height: 33 }, // movieWall 
+    ];
 
-    // Define other obstacles as needed
-    const chairBlock = this.add.rectangle(500, 500, 50, 50).setOrigin(0, 0);
-    this.physics.add.existing(chairBlock, true); // Set as static collider
-    this.obstacles.add(chairBlock);
-    chairBlock.setVisible(false);
-
-    // Add obstacles to the office map container
-    this.officeMap.add([tableBlock, chairBlock]);
+    obstaclesData.forEach(({ x, y, width, height }) => {
+      const obstacle = this.add.rectangle(x, y, width, height).setOrigin(0, 0);
+      this.physics.add.existing(obstacle, true); // Static obstacle
+      this.obstacles.add(obstacle);
+    });
 
     // Enable collision between avatar and obstacles
     this.physics.add.collider(this.avatar, this.obstacles);
 
-    // Keyboard input
+    // Initialize keyboard input
     this.cursors = this.input.keyboard.createCursorKeys();
-  }
 
-  function update() {
-    let speed = 5;
+    // Add text below the avatar
+    this.avatarText = this.add.text(this.avatar.x, this.avatar.y + 5, `${username}`, {
+      font: '7px Times New Roman',
+      fill: '#ffffff',
+      align: 'center',
+      
+    }).setOrigin(0.5, 0);
+  };
 
-    // Move the map based on arrow key input, simulating avatar movement
+  const update = function () {
+    const speed = 100;
+
+    // Reset velocity
+    this.avatar.setVelocity(0);
+
+    // Handle avatar movement
     if (this.cursors.left.isDown) {
-      this.officeMap.x += speed;
+      this.avatar.setVelocityX(-speed);
+    } else if (this.cursors.right.isDown) {
+      this.avatar.setVelocityX(speed);
     }
-    if (this.cursors.right.isDown) {
-      this.officeMap.x -= speed;
-    }
+
     if (this.cursors.up.isDown) {
-      this.officeMap.y += speed;
+      this.avatar.setVelocityY(-speed);
+    } else if (this.cursors.down.isDown) {
+      this.avatar.setVelocityY(speed);
     }
-    if (this.cursors.down.isDown) {
-      this.officeMap.y -= speed;
-    }
-  }
+    this.avatarText.setPosition(this.avatar.x, this.avatar.y + 5);
+  };
 
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
