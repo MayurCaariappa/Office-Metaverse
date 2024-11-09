@@ -11,19 +11,19 @@ const SigninSchema = z.object({
     password: z.string()
 }).strict();
 
+const AvatarSchema = z.object({
+    avatarId: z.number(),
+    avatarName: z.string(),
+    base64: z.string()
+}).strict();
+
 const MetadataSchema = z.object({
     avatarId: z.number
 });
 
-const AvatarSchema = z.object({
-    avatarId: z.number(),
-    name: z.string(),
-    base64: z.string()
-});
-
 const MapSchema = z.object({
     mapId: z.number(),
-    name: z.string(),
+    mapName: z.string(),
     base64: z.string()
 });
 
