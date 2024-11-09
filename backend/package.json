@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "Mayur Caariappa",
@@ -16,7 +16,11 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.2",
     "phaser": "^3.86.0",
-    "socket.io": "^4.8.0",
-    "webrtc": "^1.14.1"
+    "socket.io": "^4.8.1",
+    "webrtc": "^1.14.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
