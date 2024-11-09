@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
 const AvatarSchema = mongoose.Schema({
     avatarId: Number,
     avatarName: String,
-    imageBase64: String,  
+    base64: String, 
 });
 
 const MapSchema = mongoose.Schema({
