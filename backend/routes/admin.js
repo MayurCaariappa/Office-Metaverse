@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { Admin, User, Avatar } = require("../db/db.js");
+const { Admin } = require("../db/db.js");
 const adminMiddleware = require("../middleware/admin.js");
 const { JWT_PASSWORD } = require("../config/config.js");  
 const jwt = require("jsonwebtoken");

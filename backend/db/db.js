@@ -2,32 +2,30 @@ const mongoose = require("mongoose");
 
 mongoose.connect("mongodb+srv://admin:KS7sU1wbBbWPTfdK@cluster0.vlpfr.mongodb.net/office-metaverse-app");
 
-const AdminSchema = new mongoose.Schema({
-    username: String,
-    password: String
-});
-
 const UserSchema = new mongoose.Schema({
     username: String,
     password: String,
+    role: String,
 });
 
 const AvatarSchema = mongoose.Schema({
-    username: String,
-    avatarUrl: String,
-    online: Boolean,
-    position: {
-        x: Number,
-        y: Number
-    }
+    avatarId: Number,
+    avatarName: String,
+    imageBase64: String,  
 });
 
-const Admin = mongoose.model('Admin', AdminSchema);
+const MapSchema = mongoose.Schema({
+    mapId: String,
+    mapName: String,
+    mapBase64: String,
+});
+
 const User = mongoose.model('User', UserSchema);
 const Avatar = mongoose.model('Avatar', AvatarSchema);
+const Map = mongoose.model('Map', AvatarSchema);
 
 module.exports = {
-    Admin,
     User,
-    Avatar
+    Avatar,
+    Map,
 }
