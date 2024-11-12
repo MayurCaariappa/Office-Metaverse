@@ -1,5 +1,8 @@
 import Phaser from 'phaser';
 import { useEffect, useRef } from 'react';
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 const GameScene = ({ username }) => {
   const gameRef = useRef(null); // Reference for the Phaser game
@@ -27,10 +30,16 @@ const GameScene = ({ username }) => {
     // Create the Phaser game instance
     gameRef.current = new Phaser.Game(config);
 
+    // Listen for position updates from other users
+    socket.on('positionUpdate', (data) => {
+      updateOtherAvatarPosition(data.userId, data.position);
+    });
+
     // Clean up on component unmount
     return () => {
       gameRef.current.destroy(true);
-      gameRef.current = null; // Avoid memory leaks
+      gameRef.current = null;
+      socket.off('positionUpdate');
     };
   }, []);
 
@@ -88,7 +97,7 @@ const GameScene = ({ username }) => {
       font: '7px Times New Roman',
       fill: '#ffffff',
       align: 'center',
-      
+
     }).setOrigin(0.5, 0);
   };
 
@@ -111,6 +120,37 @@ const GameScene = ({ username }) => {
       this.avatar.setVelocityY(speed);
     }
     this.avatarText.setPosition(this.avatar.x, this.avatar.y + 5);
+
+    // Emit the updated position to the server
+    const position = { x: this.avatar.x, y: this.avatar.y };
+    socket.emit('updatePosition', { userId: username, position });
+  };
+
+  const updateOtherAvatarPosition = (userId, position) => {
+    if (!otherAvatars[userId]) {
+      // If this is the first time we're seeing this user, create a new avatar for them
+      otherAvatars[userId] = this.physics.add.sprite(position.x, position.y, 'avatar1') // Use 'avatar1' or another avatar image for other users
+        .setCollideWorldBounds(true)
+        .setScale(0.05);
+
+      // Optionally, add a label with the user's name
+      const avatarLabel = this.add.text(position.x, position.y + 10, userId, {
+        font: '7px Times New Roman',
+        fill: '#ffffff',
+        align: 'center'
+      }).setOrigin(0.5, 0);
+
+      // Attach the label to the avatar
+      otherAvatars[userId].label = avatarLabel;
+    }
+
+    // Update the position of the existing or newly created avatar
+    otherAvatars[userId].setPosition(position.x, position.y);
+
+    // Update the position of the avatar's label as well
+    if (otherAvatars[userId].label) {
+      otherAvatars[userId].label.setPosition(position.x, position.y + 10);
+    }
   };
 
   return (
