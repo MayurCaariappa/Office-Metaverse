@@ -19,21 +19,20 @@ const AvatarSchema = z.object({
 
 const MetadataSchema = z.object({
     avatarId: z.number
-});
+}).strict();
 
 const MapSchema = z.object({
     mapId: z.number(),
-    mapName: z.string(),
-    base64: z.string()
-});
+    mapName: z.string()
+}).strict();
 
 const DeleteAvatarSchema = z.object({
     avatarId: z.number(),
-});
+}).strict();
 
 const DeleteMapSchema = z.object({
     mapId: z.number(),
-});
+}).strict();
 
 module.exports = {
     SignupSchema,

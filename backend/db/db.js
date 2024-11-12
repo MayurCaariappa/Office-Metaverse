@@ -15,14 +15,14 @@ const AvatarSchema = mongoose.Schema({
 });
 
 const MapSchema = mongoose.Schema({
-    mapId: String,
+    mapId: Number,
     mapName: String,
-    mapBase64: String,
+    imagePath: String,
 });
 
 const User = mongoose.model('User', UserSchema);
 const Avatar = mongoose.model('Avatar', AvatarSchema);
-const Map = mongoose.model('Map', AvatarSchema);
+const Map = mongoose.model('Map', MapSchema);
 
 module.exports = {
     User,

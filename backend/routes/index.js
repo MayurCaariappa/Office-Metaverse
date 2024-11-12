@@ -1,12 +1,23 @@
 const { Router } = require("express");
-const { User, Avatar } = require("../db/db.js");
-const { SignupSchema, SigninSchema, AvatarSchema } = require("../types");
+const { User, Avatar, Map } = require("../db/db.js");
+const { SignupSchema, SigninSchema, AvatarSchema, MapSchema } = require("../types");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/auth");
 const { JWT_PASSWORD } = require("../config/config.js");
+const multer = require('multer');
 
 const router = Router();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
 
 router.post("/signup", async (req, res) => {
     try {
@@ -134,6 +145,82 @@ router.delete("/avatars/:avatarId", authMiddleware, async (req, res) => {
     } catch (error) {
         res.status(500).json({
             msg: "Something went wrong. Couldn't delete the avatar."
+        });
+    }
+});
+
+router.post("/createMap", authMiddleware, upload.single('mapImage'), async (req, res) => {
+    try {
+        req.body.mapId = parseInt(req.body.mapId, 10);
+        
+        const validatedBody = MapSchema.parse(req.body);
+        const { mapId, mapName } = validatedBody;
+
+        if (!req.file) {
+            return res.status(400).send({ msg: "No file uploaded." });
+        }
+
+        const mapImagePath = req.file.path;
+
+        const isMap = await Map.findOne({ mapId });
+        if (!isMap) {
+            await Map.create({ mapId, mapName, imagePath: mapImagePath });
+            return res.status(200).send({
+                msg: `Map ${mapName} created successfully.`,
+                mapImagePath
+            });
+        }
+
+        res.status(400).send({
+            msg: `Map already exists.`
+        });
+
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).send({
+                msg: "Invalid input data.",
+                errors: error.errors
+            });
+        }
+
+        res.status(500).json({
+            msg: "Something went wrong. Map not created."
+        });
+    }
+});
+
+router.get("/fetchMap", async (req, res) => {
+    const maps = await Map.find();
+
+    if (!maps) {
+        res.status(404).send({
+            msg: "No Maps found."
+        })
+    }
+
+    res.status(200).send({
+        msg: "Maps fetched successfully.",
+        maps
+    })
+});
+
+router.delete("/maps/:mapId", authMiddleware, async (req, res) => {
+    try {
+        const { mapId } = req.params;
+        const deleteMap = await Map.findOneAndDelete({ mapId });
+
+        if (deleteMap) {
+            res.status(200).send({
+                msg: `Map ${mapId} deleted successfully.`
+            })
+        } else {
+            res.status(404).send({
+                msg: `Map ${mapId} not found.`
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            msg: "Something went wrong. Couldn't delete the map."
         });
     }
 });
