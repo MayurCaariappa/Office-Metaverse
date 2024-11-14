@@ -13,8 +13,7 @@ const SigninSchema = z.object({
 
 const AvatarSchema = z.object({
     avatarId: z.number(),
-    avatarName: z.string(),
-    base64: z.string()
+    avatarName: z.string()
 }).strict();
 
 const MetadataSchema = z.object({
@@ -26,20 +25,10 @@ const MapSchema = z.object({
     mapName: z.string()
 }).strict();
 
-const DeleteAvatarSchema = z.object({
-    avatarId: z.number(),
-}).strict();
-
-const DeleteMapSchema = z.object({
-    mapId: z.number(),
-}).strict();
-
 module.exports = {
     SignupSchema,
     SigninSchema,
     MetadataSchema,
     AvatarSchema,
-    MapSchema,
-    DeleteAvatarSchema,
-    DeleteMapSchema
+    MapSchema
 }
