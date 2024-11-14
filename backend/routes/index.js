@@ -1,23 +1,13 @@
 const { Router } = require("express");
 const { User, Avatar, Map } = require("../db/db.js");
-const { SignupSchema, SigninSchema, AvatarSchema, MapSchema } = require("../types");
+const { SignupSchema, SigninSchema, AvatarSchema, MapSchema, DeleteMapSchema, DeleteAvatarSchema } = require("../types");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/auth");
 const { JWT_PASSWORD } = require("../config/config.js");
-const multer = require('multer');
+const { upload } = require("../middleware/upload.js");
 
 const router = Router();
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
-const upload = multer({ storage: storage });
 
 router.post("/signup", async (req, res) => {
     try {
@@ -82,14 +72,22 @@ router.post("/signin", async (req, res) => {
     }
 });
 
-router.post("/createAvatar", authMiddleware, async (req, res) => {
+router.post("/createAvatar", authMiddleware, upload.single('avatarImage'), async (req, res) => {
     try {
+        req.body.avatarId = parseInt(req.body.avatarId, 10);
+
         const validatedBody = AvatarSchema.parse(req.body);
-        const { avatarId, avatarName, base64 } = validatedBody;
+        const { avatarId, avatarName } = validatedBody;
+
+        if (!req.file) {
+            return res.status(400).send({ msg: "No avatar uploaded." });
+        }
+
+        const avatarImagePath = req.file.path;
 
         const isAvatar = await Avatar.findOne({ avatarId });
         if (!isAvatar) {
-            await Avatar.create({ avatarId, avatarName, base64 });
+            await Avatar.create({ avatarId, avatarName, imagePath: avatarImagePath });
             return res.status(200).send({
                 msg: `Avatar ${avatarName} created successfully.`
             });
@@ -152,12 +150,12 @@ router.delete("/avatars/:avatarId", authMiddleware, async (req, res) => {
 router.post("/createMap", authMiddleware, upload.single('mapImage'), async (req, res) => {
     try {
         req.body.mapId = parseInt(req.body.mapId, 10);
-        
+
         const validatedBody = MapSchema.parse(req.body);
         const { mapId, mapName } = validatedBody;
 
         if (!req.file) {
-            return res.status(400).send({ msg: "No file uploaded." });
+            return res.status(400).send({ msg: "No map uploaded." });
         }
 
         const mapImagePath = req.file.path;
