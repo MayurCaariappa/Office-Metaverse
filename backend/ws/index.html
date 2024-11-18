@@ -1,116 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Player Movement</title>
-    <style>
-      canvas {
-        border: 1px solid black;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Multiplayer Game</h1>
-    <canvas id="gameCanvas" width="800" height="150"></canvas>
 
-    <script>
-      const ws = new WebSocket("ws://localhost:8080");
-      const canvas = document.getElementById("gameCanvas");
-      const ctx = canvas.getContext("2d");
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Player Movement</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
 
-      let playerId = null;
-      let players = new Map();
-      let playerPosition = { x: 400, y: 80 };
+<body>
+  <h1>Multiplayer Game</h1>
+  <canvas id="gameCanvas" width="800" height="150"></canvas>
 
-      ws.onopen = () => {
-        console.log("Connected to the server");
-      };
+  <script>
+    const ws = new WebSocket("ws://localhost:8080");
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-      ws.onmessage = async (event) => {
-        try {
-          let rawData;
-          if (event.data instanceof Blob) {
-            rawData = await event.data.text();
-          } else {
-            rawData = event.data;
-          }
+    let playerId = null;
+    let players = new Map();
+    let playerPosition = null;;
 
-          const data = JSON.parse(rawData);
+    ws.onopen = () => {
+      console.log("Connected to the server");
+    };
 
-          if (data.type === "init") {
-            // Store the assigned player ID
-            playerId = data.id;
-            console.log("Received player ID:", playerId);
-          } else if (data.type === "update") {
-            // Update all players
-            players.clear();
-            data.players.forEach((player) => {
-              players.set(player.id, player);
-            });
-          }
-        } catch (error) {
-          console.error("Failed to parse message:", error);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log("Disconnected from the server");
-      };
-
-      function sendMovement() {
-        if (!playerId) return;
-
-        const data = {
-          id: playerId,
-          position: playerPosition,
-        };
-        ws.send(JSON.stringify(data));
-      }
-
-      function drawPlayers() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Draw all players
-        players.forEach((player, id) => {
-          if (id === playerId) {
-            // Current player is blue
-            ctx.fillStyle = "blue";
-          } else {
-            // Other players are red
-            ctx.fillStyle = "red";
-          }
-          ctx.fillRect(player.position.x, player.position.y, 20, 20);
-        });
-      }
-
-      window.addEventListener("keydown", (event) => {
-        const speed = 5;
-
-        switch (event.key) {
-          case "ArrowUp":
-            playerPosition.y -= speed;
-            break;
-          case "ArrowDown":
-            playerPosition.y += speed;
-            break;
-          case "ArrowLeft":
-            playerPosition.x -= speed;
-            break;
-          case "ArrowRight":
-            playerPosition.x += speed;
-            break;
+    ws.onmessage = async (event) => {
+      try {
+        let rawData;
+        if (event.data instanceof Blob) {
+          rawData = await event.data.text();
+        } else {
+          rawData = event.data;
         }
 
-        sendMovement();
+        const data = JSON.parse(rawData);
+
+        if (data.type === "init") {
+          // Store the assigned player ID
+          playerId = data.id;
+          playerPosition = { ...data.position };
+          console.log("Received player ID:", playerId);
+        } else if (data.type === "update") {
+          players.clear();
+          data.players.forEach((player) => {
+            players.set(player.id, player);
+          });
+        }
+      } catch (error) {
+        console.error("Failed to parse message:", error);
+      }
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from the server");
+    };
+
+    function sendMovement() {
+      if (!playerId) return;
+
+      const data = {
+        id: playerId,
+        position: playerPosition,
+      };
+      ws.send(JSON.stringify(data));
+    }
+
+    function drawPlayers() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw all players
+      players.forEach((player, id) => {
+        if (id === playerId) {
+          // Current player = blue
+          ctx.fillStyle = "blue";
+        } else {
+          // Other players = red
+          ctx.fillStyle = "red";
+        }
+        ctx.fillRect(player.position.x, player.position.y, 20, 20);
       });
+    }
 
-      function gameLoop() {
-        drawPlayers();
-        requestAnimationFrame(gameLoop);
+    window.addEventListener("keydown", (event) => {
+      if(!playerPosition) return;
+      const speed = 5;
+
+      switch (event.key) {
+        case "ArrowUp":
+          playerPosition.y -= speed;
+          break;
+        case "ArrowDown":
+          playerPosition.y += speed;
+          break;
+        case "ArrowLeft":
+          playerPosition.x -= speed;
+          break;
+        case "ArrowRight":
+          playerPosition.x += speed;
+          break;
       }
 
-      gameLoop();
-    </script>
-  </body>
+      sendMovement();
+    });
+
+    function gameLoop() {
+      drawPlayers();
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+
 </html>
