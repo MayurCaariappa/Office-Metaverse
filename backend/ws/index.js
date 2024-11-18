@@ -1,31 +1,33 @@
 const WebSocket = require("ws");
+const jwt = require("jsonwebtoken");
+const { JWT_PASSWORD } = require("../config/config.js");
 
 const wss = new WebSocket.Server({ port: 8080 });
 
 const players = new Map();
+const INITIAL_POSITION = { x: 400, y: 80 };
 
 wss.on("connection", (ws) => {
+  // const playerId = Math.random().toString(36).substring(2, 9);
+  const username = jwt.verify({ token, JWT_PASSWORD })
+  const playerId = 
+
   console.log("-------New player connected------");
 
-  // Assign a unique ID to the connection
-  const playerId = Math.random().toString(36).substring(2, 9);
+    players.set(playerId, {
+      id: playerId,
+      position: { ...INITIAL_POSITION }, //copying
+      ws: ws,
+    });
 
-  // Store the player with their websocket connection
-  players.set(playerId, {
-    id: playerId,
-    position: { x: 400, y: 80 },
-    ws: ws,
-  });
-
-  // Send the new player their ID
   ws.send(
     JSON.stringify({
       type: "init",
       id: playerId,
+      position: { ...INITIAL_POSITION },
     })
   );
 
-  // Broadcast updated players list to all clients
   broadcastPlayers();
 
   ws.on("message", (data) => {
@@ -44,12 +46,10 @@ wss.on("connection", (ws) => {
   ws.on("close", () => {
     console.log("Player disconnected");
 
-    // Remove disconnected player
     players.delete(playerId);
     broadcastPlayers();
   });
 
-  // Function to broadcast players to all clients
   function broadcastPlayers() {
     const playerData = Array.from(players.entries()).map(([id, player]) => ({
       id: id,
