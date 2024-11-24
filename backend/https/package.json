@@ -11,6 +11,7 @@
   "description": "A Virtual Office Space",
   "dependencies": {
     "axios": "^1.7.7",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
