@@ -1,9 +1,12 @@
 const { Router } = require("express");
 const { Admin } = require("../db/db.js");
 const adminMiddleware = require("../middleware/admin.js");
-const { JWT_PASSWORD } = require("../config/config.js");  
+const { JWT_PASSWORD } = require("../../config/config.js");
 const jwt = require("jsonwebtoken");
 const router = Router();
+const cors = require("cors");
+
+app.use(cors());
 
 router.post("/signup", async (req, res) => {
     const { username, password } = req.body;

@@ -1,5 +1,6 @@
 const express = require("express");
 const { router } = require("./routes/index.js");
+const cors = require("cors");
 
 // const adminRouter = require("./routes/admin");
 // const userRouter = require("./routes/user");
@@ -10,11 +11,12 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
+app.use(cors()); 
 app.use(express.json());
-app.use("/api/v1", router)
+app.use("/api/v1", router);
+   
 
 // app.use(bodyParser.json());
-// app.use(cors());
 
 // app.use("/admin", adminRouter);
 // app.use("/user", userRouter);
