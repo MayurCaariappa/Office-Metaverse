@@ -1,17 +1,21 @@
 import "./App.css";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Login } from "../components/Login.jsx";
+import { Game } from '../components/Game.jsx';
 import { Signup } from "../components/Signup.jsx";
 
 function App() {
     const [login, setLogin] = useState(false);
     const [signup, setSignup] = useState(false);
     const [username, setUsername] = useState("");
+    const [token, setToken] = useState("");
+    const [showLogin, setShowLogin] = useState(true);
 
     // Callback function to handle login success
-    const handleLoginSuccess = (username) => {
+    const handleLoginSuccess = (username, token) => {
         setLogin(true);
         setUsername(username);
+        setToken(token);
         console.log(`User ${username} logged in successfully!`);
     };
 
@@ -19,15 +23,40 @@ function App() {
     const handleSignupSuccess = (username) => {
         setSignup(true);
         setUsername(username);
+        setShowLogin(true);
         console.log(`User ${username} signed up successfully!`);
+    }
+
+    const toggleAuthView = () => {
+        setShowLogin(!showLogin);
+    };
+
+    if (login && token) {
+        return (
+            <div className="App">
+                <h3>Welcome, {username}!</h3>
+                <Game token={token} />
+            </div>
+        );
     }
 
     return (
         <div className="App">
-            {!signup ? (
-                <Signup onSignupSuccess={handleSignupSuccess} />
+            {showLogin ? (
+                <div>
+                    <Login onLoginSuccess={handleLoginSuccess} />
+                    <p>Don't have an account?{" "}
+                        <button onClick={toggleAuthView}>Sign up</button>
+                    </p>
+                </div>
             ) : (
-                <h3>Welcome, {username}!</h3>
+                <div>
+                    <Signup onSignupSuccess={handleSignupSuccess} />
+                    <p>
+                        Already have an account?{" "}
+                        <button onClick={toggleAuthView}>Log in</button>
+                    </p>
+                </div>
             )}
         </div>
     );

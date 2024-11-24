@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 export const Login = ({ onLoginSuccess }) => {
@@ -13,12 +13,14 @@ export const Login = ({ onLoginSuccess }) => {
                 password: password,
             });
 
+            localStorage.setItem('gameToken', response.data.token);
+
             // alert("Signed in successfully");
             if (onLoginSuccess) {
-                onLoginSuccess(username);
+                onLoginSuccess(username, response.data.token);
             }
         } catch (error) {
-            if (error.response && error.response.data && error.response.data.msg) {
+            if (error.response?.data?.msg) {
                 alert(error.response.data.msg);
             } else {
                 alert("Failed to sign in");
