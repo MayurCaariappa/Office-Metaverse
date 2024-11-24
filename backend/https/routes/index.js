@@ -4,8 +4,13 @@ const { SignupSchema, SigninSchema, AvatarSchema, MapSchema, DeleteMapSchema, De
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const authMiddleware = require("../middleware/auth.js");
-const { JWT_PASSWORD } = require("../config/config.js");
+const { JWT_PASSWORD } = require("../../config/config.js");
 const { upload } = require("../middleware/upload.js");
+const cors = require("cors");
+const express = require("express");
+
+const app = express();
+app.use(cors());
 
 const router = Router();
 

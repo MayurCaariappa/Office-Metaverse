@@ -1,27 +1,36 @@
-import './App.css';
-import React, { useState } from 'react';
-import GameScene from "../components/GameScene.jsx";
-import { Login } from '../components/Login.jsx';
+import "./App.css";
+import { useState } from "react";
+import { Login } from "../components/Login.jsx";
+import { Signup } from "../components/Signup.jsx";
 
 function App() {
-  const [login, setLogin] = useState(false);
-  const [username, setUsername] = useState("");
+    const [login, setLogin] = useState(false);
+    const [signup, setSignup] = useState(false);
+    const [username, setUsername] = useState("");
 
-  // Function to handle successful login
-  const handleLoginSuccess = (user) => {
-    setLogin(true);
-    setUsername(user);
-  };
+    // Callback function to handle login success
+    const handleLoginSuccess = (username) => {
+        setLogin(true);
+        setUsername(username);
+        console.log(`User ${username} logged in successfully!`);
+    };
 
-  return (
-    <div className="App">
-      {!login ? (
-        <Login onLoginSuccess={handleLoginSuccess} />
-      ) : (
-        <GameScene username={username} />
-      )}
-    </div>
-  )
+    // Callback function to handle signup success
+    const handleSignupSuccess = (username) => {
+        setSignup(true);
+        setUsername(username);
+        console.log(`User ${username} signed up successfully!`);
+    }
+
+    return (
+        <div className="App">
+            {!signup ? (
+                <Signup onSignupSuccess={handleSignupSuccess} />
+            ) : (
+                <h3>Welcome, {username}!</h3>
+            )}
+        </div>
+    );
 }
 
-export default App
+export default App;

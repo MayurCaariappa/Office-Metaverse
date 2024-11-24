@@ -2,28 +2,28 @@ import PropTypes from "prop-types";
 import { useState } from 'react';
 import axios from 'axios';
 
-export const Login = ({ onLoginSuccess }) => {
+export const Signup = ({ onSignupSuccess }) => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleLogin = async () => {
+    const handleSignup = async () => {
         try {
-            const response = await axios.post("http://localhost:3000/api/v1/signin", {
+            const response = await axios.post("http://localhost:3000/api/v1/signup", {
                 username: username,
                 password: password,
             });
 
-            // alert("Signed in successfully");
-            if (onLoginSuccess) {
-                onLoginSuccess(username);
+            // alert("Signed up successfully");
+            if (onSignupSuccess) {
+                onSignupSuccess(username);
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.msg) {
                 alert(error.response.data.msg);
             } else {
-                alert("Failed to sign in");
+                alert("Failed to sign up");
             }
-            console.error("Error during sign-in:", error);
+            console.error("Error during sign-up:", error);
         }
     };
 
@@ -45,12 +45,12 @@ export const Login = ({ onLoginSuccess }) => {
                 onChange={(e) => setPassword(e.target.value)}
             />
             <br />
-            <button onClick={handleLogin}>Login</button>
+            <button onClick={handleSignup}>Signup</button>
         </div>
     );
 };
 
 // Prop validation
-Login.propTypes = {
-    onLoginSuccess: PropTypes.func.isRequired,
+Signup.propTypes = {
+    onSignupSuccess: PropTypes.func.isRequired,
 };
