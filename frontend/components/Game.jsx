@@ -131,7 +131,7 @@ export const Game = ({ token }) => {
 
     return (
         <div>
-            <h1>Multiplayer Game</h1>
+            {/* <h1>Multiplayer Game</h1> */}
             <canvas
                 ref={canvasRef}
                 width={800}
