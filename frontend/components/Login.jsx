@@ -31,10 +31,11 @@ export const Login = ({ onLoginSuccess }) => {
 
     return (
         <div>
+            <h1>Welcome Back!</h1>
             <input
                 type="text"
                 style={{ margin: 10, padding: 10 }}
-                placeholder="Username"
+                placeholder="what was your name again?"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
             />
@@ -42,12 +43,12 @@ export const Login = ({ onLoginSuccess }) => {
             <input
                 type="password"
                 style={{ margin: 10, padding: 10 }}
-                placeholder="Password"
+                placeholder="don’t tell anyone!"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
             <br />
-            <button onClick={handleLogin}>Login</button>
+            <button onClick={handleLogin}>Login</button> <br />
         </div>
     );
 };

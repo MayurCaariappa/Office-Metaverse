@@ -1,4 +1,4 @@
-import "./App.css";
+import "./globals.css";
 import React, { useState } from "react";
 import { Login } from "../components/Login.jsx";
 import { Game } from '../components/Game.jsx';
@@ -44,8 +44,8 @@ function App() {
         <div className="App">
             {showLogin ? (
                 <div>
-                    <Login onLoginSuccess={handleLoginSuccess} />
-                    <p>Don't have an account?{" "}
+                    <Login onLoginSuccess={handleLoginSuccess} /> <br />
+                    <p>First time here? Create a character before you crash our servers!{" "}
                         <button onClick={toggleAuthView}>Sign up</button>
                     </p>
                 </div>
