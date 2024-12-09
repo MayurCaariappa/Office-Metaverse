@@ -71,4 +71,9 @@ The project is a full-stack application built using the following technologies:
     -   Using WebSocket (Socket.IO), all movements and interactions are synced in real-time.
     -   Other users can see movements and interactions without page refreshes.
 
+## Develop
+- Install dependencies with npm install
+- Start local dev server with npm run start
+- Build site deployment assets with npm run build
+
 Started on 22 October, 2024.

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
-import { cn } from "../lib/utils"; // Adjust the path based on your project structure
+import { cn } from "./lib/utils";
 import PropTypes from "prop-types";
 
 const Input = React.forwardRef(({ className, type, ...props }, ref) => {

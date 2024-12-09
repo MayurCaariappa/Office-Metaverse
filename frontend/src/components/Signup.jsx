@@ -11,9 +11,9 @@ const signupSchema = z.object({
     password: z
         .string()
         .min(8, { message: "Password must be at least 8 characters" })
-        .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, {
-            message: "Password must include letters, numbers, and special characters",
-        }),
+        // .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/, {
+        //     message: "Password must include letters, numbers, and special characters",
+        // }),
 });
 
 export const Signup = ({ onSignupSuccess }) => {
@@ -54,16 +54,20 @@ export const Signup = ({ onSignupSuccess }) => {
         setLoading(true);
         try {
             const response = await axios.post("http://localhost:3000/api/v1/signup", formData);
+            // console.log("response: " + response);
 
-            if (response.status === 201) {
+            if (response.status === 200) {
                 onSignupSuccess(formData.username);
+                // console.log("Signup: Inside the if block. Status code: " + response.status);
             } else {
+                // console.log("Signup: Inside the else block. Status code: " + response.status);
                 setErrors((prev) => ({
                     ...prev,
                     submit: response.data?.message || "Signup failed",
                 }));
             }
         } catch (error) {
+            // console.log("Signup: Inside the error block. Status code: " + error.status);
             setErrors((prev) => ({
                 ...prev,
                 submit: "Network error. Please try again.",
@@ -83,7 +87,7 @@ export const Signup = ({ onSignupSuccess }) => {
             >
                 <div className="text-center">
                     <h1 className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-3">
-                        Welcome
+                        Hi!👋
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400">
                         Create your account
@@ -103,7 +107,7 @@ export const Signup = ({ onSignupSuccess }) => {
                                 ? "border-red-500 focus:border-red-500"
                                 : "border-gray-300 focus:border-blue-500"
                                 } dark:bg-zinc-900 dark:text-white`}
-                            placeholder="what was your name again?"
+                            placeholder="Username"
                             aria-invalid={!!errors.username}
                         />
                         {errors.username && (
