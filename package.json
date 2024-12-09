@@ -1,8 +1,15 @@
 {
+  "scripts": {
+    "start:server-https": "node backend/https/index.js",
+    "start:server-ws": "node backend/ws/index.js",
+    "start:frontend": "npm run dev --prefix frontend",
+    "start": "concurrently \"npm run start:server-https\" \"npm run start:server-ws\" \"npm run start:frontend\""
+  },
   "dependencies": {
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "concurrently": "^9.1.0",
     "jest": "^29.7.0"
   }
 }
