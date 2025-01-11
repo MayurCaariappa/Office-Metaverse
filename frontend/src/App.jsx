@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Login } from "./components/Login.jsx";
 import { Game } from './components/Game.jsx';
 import { Signup } from "./components/Signup.jsx";
+import { Map } from "./components/Map.jsx";
 import "./globals.css";
 
 function App() {
@@ -21,7 +22,7 @@ function App() {
         setUsername(username);
         setToken(token);
         console.log(`User ${username} logged in successfully!`);
-        navigate("/game");
+        navigate("/map");
     };
 
     // Callback function to handle signup success
@@ -38,20 +39,20 @@ function App() {
         navigate(showLogin ? "/signup" : "/login");
     };
 
-    if (login && token) {
-        return (
-            <div className="App">
-                <h3>Welcome, {username}!</h3>
-                <Game token={token} />
-            </div>
-        );
-    }
+    // if (login && token) {
+    //     return (
+    //         <div className="App">
+    //             <h3>Welcome, {username}!</h3>
+    //             <Game token={token} />
+    //         </div>
+    //     );
+    // }
 
     return (
             <Routes>
                 <Route
-                    path="/game"
-                    element={login && token ? <Game /> : <Navigate to="/login" />}
+                    path="/map"
+                    element={login && token ? <Map /> : <Navigate to="/login" />}
                 />
 
                 <Route
