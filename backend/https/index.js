@@ -11,10 +11,9 @@ const PORT = process.env.PORT || 3000;
 
 const app = express();
 
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
 app.use("/api/v1", router);
-   
 
 // app.use(bodyParser.json());
 
@@ -23,5 +22,5 @@ app.use("/api/v1", router);
 // app.use("/avatar", avatarRouter);
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`);
 });

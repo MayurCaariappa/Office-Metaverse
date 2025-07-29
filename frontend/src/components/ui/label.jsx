@@ -18,5 +18,5 @@ Label.displayName = LabelPrimitive.Root.displayName;
 export { Label };
 
 Label.propTypes = {
-    className: PropTypes.func.isRequired,
-  };
+  className: PropTypes.func.isRequired,
+};

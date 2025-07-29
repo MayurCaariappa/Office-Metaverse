@@ -42,7 +42,6 @@ wss.on("connection", (ws, req) => {
 
     ws.on("close", () => {
       console.log(`Player disconnected: ${playerId}`);
-
       players.delete(playerId);
       broadcastPlayers();
     });
@@ -52,8 +51,6 @@ wss.on("connection", (ws, req) => {
         id: id,
         position: player.position,
       }));
-
-      // console.log("Broadcasting players:", playerData);
 
       const message = JSON.stringify({
         type: "update",
