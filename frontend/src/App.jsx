@@ -1,17 +1,15 @@
 import React, { useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { Login } from "./components/Login.jsx";
+import { AuthPage } from "./components/Auth-page.jsx";
 import { Game } from "./components/Game.jsx";
-import { Signup } from "./components/Signup.jsx";
+import "./index.css";
 import "./globals.css";
 
 function App() {
   const [login, setLogin] = useState(false);
   const [username, setUsername] = useState("");
   const [token, setToken] = useState("");
-  const [showLogin, setShowLogin] = useState(true);
-
   const navigate = useNavigate();
 
   const handleLoginSuccess = (username, token) => {
@@ -24,14 +22,8 @@ function App() {
 
   const handleSignupSuccess = (username) => {
     setUsername(username);
-    setShowLogin(true);
     console.log(`User ${username} signed up successfully!`);
-    navigate("/login");
-  };
-
-  const toggleAuthView = () => {
-    setShowLogin(!showLogin);
-    navigate(showLogin ? "/signup" : "/login");
+    navigate("/game");
   };
 
   return (
@@ -39,41 +31,19 @@ function App() {
       <Route
         path="/game"
         element={
-          login && token ? <Game token={token} /> : <Navigate to="/login" />
+          login && token ? <Game token={token} /> : <Navigate to="/auth" />
         }
       />
       <Route
-        path="/login"
+        path="/auth"
         element={
-          <div>
-            <Login onLoginSuccess={handleLoginSuccess} />
-            <br />
-            <p>
-              First time here? Create a character before you crash our servers!{" "}
-              <button onClick={toggleAuthView}>Sign up</button>
-            </p>
-          </div>
+          <AuthPage
+            onLoginSuccess={handleLoginSuccess}
+            onSignupSuccess={handleSignupSuccess}
+          />
         }
       />
-      <Route
-        path="/signup"
-        element={
-          <div>
-            <Signup onSignupSuccess={handleSignupSuccess} />
-            <br />
-            <p>
-              Already have an account?{" "}
-              <button onClick={toggleAuthView}>Log in</button>
-            </p>
-          </div>
-        }
-      />
-      <Route
-        path="/"
-        element={
-          showLogin ? <Navigate to="/login" /> : <Navigate to="/signup" />
-        }
-      />
+      <Route path="/" element={<Navigate to="/auth" />} />
     </Routes>
   );
 }

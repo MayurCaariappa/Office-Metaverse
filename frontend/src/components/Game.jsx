@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 
 export const Game = ({ token }) => {
@@ -8,6 +8,7 @@ export const Game = ({ token }) => {
   const playerIdRef = useRef(null);
   const playerPositionRef = useRef(null);
   const isConnectedRef = useRef(false);
+  const [playerId, setPlayerId] = useState(null);
 
   useEffect(() => {
     if (!token) {
@@ -18,57 +19,63 @@ export const Game = ({ token }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
-    // Initialize WebSocket
-    wsRef.current = new WebSocket(
-      `ws://localhost:8080?token=${encodeURIComponent(token)}`
-    );
+    const connectWebSocket = () => {
+      // Initialize WebSocket connection
+      wsRef.current = new WebSocket(
+        `ws://localhost:8080?token=${encodeURIComponent(token)}`
+      );
 
-    wsRef.current.onopen = () => {
-      console.log("Connected to the server");
-      isConnectedRef.current = true;
-    };
+      wsRef.current.onopen = () => {
+        console.log("Connected to the server");
+        isConnectedRef.current = true;
+      };
 
-    wsRef.current.onmessage = async (event) => {
-      try {
-        let rawData =
-          event.data instanceof Blob ? await event.data.text() : event.data;
-        const data = JSON.parse(rawData);
-        console.log("Received message:", data);
+      wsRef.current.onmessage = async (event) => {
+        try {
+          let rawData =
+            event.data instanceof Blob ? await event.data.text() : event.data;
+          const data = JSON.parse(rawData);
+          console.log("Received message:", data);
 
-        if (data.type === "init") {
-          playerIdRef.current = data.id;
-          playerPositionRef.current = { ...data.position };
-          playersRef.current.set(data.id, {
-            id: data.id,
-            position: { ...data.position },
-          });
-          console.log("Player initialized:", data.id, data.position);
-        } else if (data.type === "update") {
-          playersRef.current.clear();
-          data.players.forEach((player) => {
-            playersRef.current.set(player.id, player);
-            if (player.id === playerIdRef.current) {
-              playerPositionRef.current = { ...player.position };
-            }
-          });
-          console.log(
-            "Players updated:",
-            Array.from(playersRef.current.entries())
-          );
+          if (data.type === "init") {
+            playerIdRef.current = data.id;
+            setPlayerId(data.id); // Update state to trigger re-render
+            playerPositionRef.current = { ...data.position };
+            playersRef.current.set(data.id, {
+              id: data.id,
+              position: { ...data.position },
+            });
+            console.log("Player initialized:", data.id, data.position);
+          } else if (data.type === "update") {
+            playersRef.current.clear();
+            data.players.forEach((player) => {
+              playersRef.current.set(player.id, player);
+              if (player.id === playerIdRef.current) {
+                playerPositionRef.current = { ...player.position };
+              }
+            });
+            console.log(
+              "Players updated:",
+              Array.from(playersRef.current.entries())
+            );
+          }
+        } catch (error) {
+          console.error("Failed to parse message:", error);
         }
-      } catch (error) {
-        console.error("Failed to parse message:", error);
-      }
+      };
+
+      wsRef.current.onclose = (event) => {
+        console.log("Disconnected from the server:", event.code, event.reason);
+        isConnectedRef.current = false;
+        setTimeout(connectWebSocket, 3000); // Retry connection
+      };
+
+      wsRef.current.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
     };
 
-    wsRef.current.onclose = (event) => {
-      console.log("Disconnected from the server:", event.code, event.reason);
-      isConnectedRef.current = false;
-    };
-
-    wsRef.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
+    connectWebSocket();
 
     const handleKeyDown = (event) => {
       if (!playerPositionRef.current || !isConnectedRef.current) return;
@@ -137,7 +144,7 @@ export const Game = ({ token }) => {
 
   return (
     <div style={{ textAlign: "center", padding: "20px" }}>
-      <h3>Welcome, {playerIdRef.current || "Player"}!</h3>
+      <h3>Welcome, {playerId || "Player"}!</h3>
       <canvas
         ref={canvasRef}
         width={800}
@@ -151,5 +158,3 @@ export const Game = ({ token }) => {
 Game.propTypes = {
   token: PropTypes.string.isRequired,
 };
-
-export default Game;
