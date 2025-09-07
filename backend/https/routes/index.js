@@ -23,12 +23,14 @@ router.post("/signup", async (req, res) => {
     const validatedBody = SignupSchema.parse(req.body);
     const { username, password, role = "user" } = validatedBody;
     const isUser = await User.findOne({ username });
+
     if (!isUser) {
       await User.create({ username, password, role });
       return res.status(200).send({
         msg: `User ${username} created successfully!`,
       });
     }
+
     res.status(400).send({
       msg: `User ${username} already exists. Proceed to signin.`,
     });
@@ -39,6 +41,7 @@ router.post("/signup", async (req, res) => {
         errors: error.errors,
       });
     }
+
     res.status(500).send({
       msg: "Something went wrong. User not created.",
     });
@@ -50,8 +53,10 @@ router.post("/signin", async (req, res) => {
     const validatedBody = SigninSchema.parse(req.body);
     const { username, password } = validatedBody;
     const user = await User.findOne({ username });
+
     if (user && user.password === password) {
       const token = jwt.sign({ username, role: user.role }, JWT_PASSWORD);
+
       res.status(200).send({
         msg: `User ${username} signed-in successfully`,
         token,
@@ -68,6 +73,7 @@ router.post("/signin", async (req, res) => {
         errors: error.errors,
       });
     }
+
     res.status(500).json({
       msg: "An error occurred during sign in",
     });

@@ -5,6 +5,7 @@ const { Map } = require("../db/db.js");
 const { MapSchema } = require("../types/index.js");
 const { upload } = require("../middleware/upload.js");
 const authMiddleware = require("../middleware/auth.js");
+const path = require("path");
 
 const router = Router();
 
@@ -20,10 +21,27 @@ router.post(
       req.body.mapId = parseInt(req.body.mapId, 10);
       const validatedBody = MapSchema.parse(req.body);
       const { mapId, mapName } = validatedBody;
+
       if (!req.file) {
         return res.status(400).send({ msg: "No map uploaded." });
       }
-      const mapImagePath = req.file.path.replace(/\\/g, "/");
+
+      // Convert absolute path to relative path: "uploads/maps/<filename>"
+      let mapImagePath = req.file.path.replace(/\\/g, "/");
+      const uploadsDir = path.resolve(__dirname, "../uploads/maps");
+      console.log("Uploads directory:", uploadsDir);
+      console.log("Full file path from Multer:", mapImagePath);
+
+      // Strip absolute prefix to get relative path starting with "uploads/maps/"
+      if (mapImagePath.startsWith(uploadsDir)) {
+        mapImagePath = "uploads/maps/" + path.basename(mapImagePath);
+      } else {
+        // Fallback: If path doesn't start with uploadsDir, extract filename manually
+        mapImagePath = "uploads/maps/" + path.basename(mapImagePath);
+      }
+
+      console.log("Normalized mapImagePath (saved to DB):", mapImagePath);
+
       const isMap = await Map.findOne({ mapId });
       if (!isMap) {
         await Map.create({ mapId, mapName, imagePath: mapImagePath });
@@ -32,16 +50,19 @@ router.post(
           mapImagePath,
         });
       }
+
       res.status(400).send({
         msg: `Map already exists.`,
       });
     } catch (error) {
+      console.error("CreateMap error:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).send({
           msg: "Invalid input data.",
           errors: error.errors,
         });
       }
+
       res.status(500).json({
         msg: "Something went wrong. Map not created.",
       });
@@ -52,17 +73,20 @@ router.post(
 router.get("/fetchMap", async (req, res) => {
   try {
     const maps = await Map.find();
+
     if (!maps || maps.length === 0) {
       res.status(404).send({
         msg: "No Maps found.",
       });
     }
+
     const mapsWithUrls = maps.map((map) => ({
       ...map.toObject(),
       imageUrl: `http://localhost:3000/uploads/${map.imagePath
         .replace(/^uploads[\\/]/, "")
         .replace(/\\/g, "/")}`,
     }));
+
     res.status(200).send({
       msg: "Maps fetched successfully.",
       maps: mapsWithUrls,

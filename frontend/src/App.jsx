@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { AuthPage } from "./components/Auth-page.jsx";
 import { Game } from "./components/Game.jsx";
+import { Map } from "./components/Map.jsx";
 import "./index.css";
 import "./globals.css";
 
@@ -17,13 +18,15 @@ function App() {
     setUsername(username);
     setToken(token);
     console.log(`User ${username} logged in successfully!`);
-    navigate("/game");
+    navigate("/map");
   };
 
-  const handleSignupSuccess = (username) => {
+  const handleSignupSuccess = (username, token) => {
+    setLogin(true);
     setUsername(username);
+    setToken(token);
     console.log(`User ${username} signed up successfully!`);
-    navigate("/game");
+    navigate("/map");
   };
 
   return (
@@ -32,6 +35,12 @@ function App() {
         path="/game"
         element={
           login && token ? <Game token={token} /> : <Navigate to="/auth" />
+        }
+      />
+      <Route
+        path="/map"
+        element={
+          login && token ? <Map token={token} /> : <Navigate to="/auth" />
         }
       />
       <Route

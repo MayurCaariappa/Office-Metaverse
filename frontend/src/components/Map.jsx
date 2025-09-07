@@ -8,19 +8,24 @@ export const Map = ({ token }) => {
 
   const fetchMaps = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/api/v1/fetchMap");
+      const response = await axios.get(
+        "http://localhost:3000/api/v1/fetchMap",
+        {
+          // headers: { Authorization: `Bearer ${token}` }, // Uncomment if backend requires auth
+        }
+      );
       if (response.status === 200) {
+        console.log("Fetched maps:", response.data.maps);
         setMaps(response.data.maps);
       }
     } catch (error) {
-      console.error("Error fetching the maps", error);
+      console.error("Error fetching the maps:", error);
       alert("Failed to fetch maps.");
     }
   };
 
   const handleMapSelect = (mapId) => {
-    // Navigate to the game with the selected map
-    navigate("/game", { state: { mapId, token } });
+    navigate("/game", { state: { mapId } });
   };
 
   useEffect(() => {
@@ -28,9 +33,16 @@ export const Map = ({ token }) => {
   }, []);
 
   return (
-    <div>
+    <div style={{ textAlign: "center", padding: "20px" }}>
       <h3>Choose your map!</h3>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "10px",
+          justifyContent: "center",
+        }}
+      >
         {maps.length > 0 ? (
           maps.map((map) => (
             <div
@@ -40,9 +52,7 @@ export const Map = ({ token }) => {
                 borderRadius: "8px",
                 padding: "10px",
                 textAlign: "center",
-                width: "500px",
-                height: "200px",
-                backgroundColor: "#f9f9f9",
+                width: "300px",
                 cursor: "pointer",
               }}
               onClick={() => handleMapSelect(map.mapId)}
@@ -51,7 +61,15 @@ export const Map = ({ token }) => {
               <img
                 src={map.imageUrl}
                 alt={map.mapName}
-                style={{ width: "100%", borderRadius: "8px" }}
+                style={{
+                  width: "100%",
+                  height: "150px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                }}
+                onError={() =>
+                  console.error(`Failed to load image: ${map.imageUrl}`)
+                }
               />
             </div>
           ))

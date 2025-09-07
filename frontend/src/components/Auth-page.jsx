@@ -53,13 +53,13 @@ export const AuthPage = ({ onSignupSuccess, onLoginSuccess }) => {
         `http://localhost:3000/api/v1/${endpoint}`,
         formData
       );
-
       if (response.status === 200) {
         if (isLogin) {
           localStorage.setItem("gameToken", response.data.token);
           onLoginSuccess(formData.username, response.data.token);
         } else {
-          onSignupSuccess(formData.username);
+          localStorage.setItem("gameToken", response.data.token);
+          onSignupSuccess(formData.username, response.data.token);
         }
       }
     } catch (error) {
@@ -112,7 +112,12 @@ export const AuthPage = ({ onSignupSuccess, onLoginSuccess }) => {
                 className={errors.username ? "border-red-500" : ""}
               />
               {errors.username && (
-                <p className="mt-1 text-sm !text-red-500">{errors.username}</p>
+                <p
+                  className="error-message mt-1 text-sm !text-red-500"
+                  style={{ color: "#ef4444" }}
+                >
+                  {errors.username}
+                </p>
               )}
             </div>
 
@@ -131,13 +136,23 @@ export const AuthPage = ({ onSignupSuccess, onLoginSuccess }) => {
                 className={errors.password ? "border-red-500" : ""}
               />
               {errors.password && (
-                <p className="mt-1 text-sm !text-red-500">{errors.password}</p>
+                <p
+                  className="error-message mt-1 text-sm !text-red-500"
+                  style={{ color: "#ef4444" }}
+                >
+                  {errors.password}
+                </p>
               )}
             </div>
 
             {errors.submit && (
-              <div className="p-2 bg-red-500/10 border-red-500 rounded text-sm">
-                <p className="!text-red-500">{errors.submit}</p>
+              <div className="p-2 bg-red-500/10 border border-red-500 rounded text-sm">
+                <p
+                  className="error-message !text-red-500"
+                  style={{ color: "#ef4444" }}
+                >
+                  {errors.submit}
+                </p>
               </div>
             )}
 
