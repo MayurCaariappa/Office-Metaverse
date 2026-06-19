@@ -1,90 +1,114 @@
 # Office Metaverse
 
-## Overview
+Office Metaverse is a full-stack demo for a virtual office product: a multiplayer workspace where users sign in, choose a map, and see each other move around in realtime.
 
-The **Office Metaverse** is a 2D virtual office space built using the **Phaser** game engine and **MERN** stack. The project allows users to interact in a virtual environment that mimics an office, where each user is represented by a unique avatar. Users can move around, interact with other users via text, video, or voice chat, and see other users’ status (online/offline). As more users join, the office space dynamically expands.
+## Current product slice
+
+The current version focuses on a polished and credible multiplayer foundation:
+
+- secure sign up and sign in with hashed passwords and JWT auth
+- map selection flow with asset-backed scenes
+- realtime player presence over WebSockets
+- room-aware multiplayer movement sync
+- refresh-safe client session persistence
+- a more polished product shell around the gameplay canvas
+
+## Feature status
+
+| Area                  | Status      | Notes                                                |
+| --------------------- | ----------- | ---------------------------------------------------- |
+| Authentication        | Implemented | Typed API, hashed passwords, JWT session flow        |
+| Map gallery           | Implemented | REST-backed map browsing with media URLs             |
+| Multiplayer movement  | Implemented | WebSocket presence sync scoped by map                |
+| Avatar management API | Implemented | Admin-only upload flow ready for extension           |
+| Voice/video           | Planned     | Not implemented yet.                                 |
+| Chat and interactions | Planned     | Realtime layer is structured to support this next    |
+| Dynamic office growth | Planned     | Map and presence architecture prepared for extension |
 
 ## Architecture
 
-The project is a full-stack application built using the following technologies:
+### Frontend
 
-- **MERN Stack**: MongoDB, Express, React, Node.js
-- **Phaser**: A popular 2D game engine for creating the virtual office space and handling character interactions.
-- **WebRTC**: For real-time video and voice communication between users.
-- **Socket.IO**: For real-time data synchronization (e.g., user movement, avatar status).
-- **JWT (JSON Web Token)**: For secure user authentication and session management.
+- React + TypeScript + Vite
+- Route-guarded flows for auth, lobby, and office view
+- Small client API layer for HTTP and WebSocket configuration
+- Canvas-based office renderer with polished product shell
 
-## Diagram of the Architecture:
+### Backend
 
-- **Frontend (React + Phaser)**:
-  - Provides a dynamic user interface for interacting with the virtual office.
-  - Phaser handles avatar movement and interactions within the game space.
-  - React manages the user interface components, such as login, user dashboard, and video call UI.
-  -
-- **Backend (Node.js + Express)**:
+- Express + TypeScript
+- Zod-based request validation
+- JWT auth with role-aware middleware
+- Multer-based media upload pipeline
+- Repository-driven app construction for testability
 
-  - Handles API requests, WebSocket connections, and real-time data updates.
-  - Express serves as the RESTful API layer for user authentication, storing user status, and office layout data.
-  - WebSocket (Socket.IO) manages the real-time updates for avatar movement and interactions between users.
+### Realtime
 
-- **Database (MongoDB)**:
+- Native `ws` server
+- Typed message contracts
+- Map-scoped player registry
+- Reconnect-aware client behavior
 
-  - Stores user data, avatar information, office layout, and user status (e.g., online/offline).
-  - Ensures persistent user data and scaling as more users join the office.
+### Data
 
-- **WebRTC**:
+- MongoDB via Mongoose
+- User, map, and avatar models
 
-  - Used for establishing peer-to-peer connections between users for video and voice calls.
+## Local setup
 
-- **Real-time Communication (Socket.IO)**:
-  - Syncs the position and status of users across the network.
-  - Broadcasts avatar movements to other connected clients and handles real-time interactions like text messaging.
+### 1. Install dependencies
 
-## Features
+```bash
+npm install
+npm install --prefix frontend
+```
 
-1.  **Virtual Office Space**:
+### 2. Create your env file
 
-    - Each user has their own virtual desk and avatar.
-    - Avatars can move around using keyboard arrow keys. (done)
-    - Users can explore the office and visit other users’ desks. (done)
+```bash
+cp .env.example .env
+```
 
-2.  **User Authentication**:
+Update the values in `.env`, especially:
 
-    - Secure login and registration using JWT. (done)
-    - Users can create profiles and choose avatars.
+- `MONGODB_URI`
+- `JWT_SECRET`
+- `UPLOAD_DIR`
 
-3.  **Real-time Avatar Status**:
+### 3. Start the app
 
-    - When a user logs in, their avatar appears online and is free to move around.
-    - When a user logs out, the avatar automatically sits at their desk and shows offline status.
+```bash
+npm run dev
+```
 
-4.  **Voice/Video Calls**:
+That launches:
 
-    - Users can initiate video or voice calls using WebRTC.
-    - One-on-one real-time communication with video/audio streams.
+- backend API on `API_PORT`
+- realtime server on `WS_PORT`
+- frontend Vite app on `http://localhost:5173`
 
-5.  **Text Messaging**:
+## Scripts
 
-    - Users can send messages to each other using real-time chat functionality.
-    - Notifications for incoming messages and calls.
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run test
+```
 
-6.  **Dynamic Office Expansion**:
+## Demo flow
 
-    - As more users join, the virtual office automatically expands, creating new desks and office areas.
-    - The office layout scales to accommodate more users dynamically.
+1. Open the landing page and sign up or sign in.
+2. Enter the map gallery.
+3. Open the same map in multiple tabs or browsers.
+4. Move with arrow keys or WASD to validate live multiplayer sync.
 
-7.  **Character Animation**:
+## Roadmap
 
-    - Smooth animations for avatars, including sitting, walking, and interacting with objects.
-
-8.  **Real-time Synchronization**:
-    - Using WebSocket (Socket.IO), all movements and interactions are synced in real-time.
-    - Other users can see movements and interactions without page refreshes.
-
-## Develop
-
-- Install dependencies with npm install
-- Start local dev server with npm run start
-- Build site deployment assets with npm run build
+- proximity chat and direct messaging
+- richer avatars and sprite-based animation
+- interaction zones for desks, meeting rooms, and collaboration spaces
+- analytics/observability for room activity
+- deployable cloud environment with seeded demo data
 
 Started on 22 October, 2024.
